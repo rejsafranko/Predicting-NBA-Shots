@@ -1,4 +1,4 @@
-# Intro to Datascience - Course project
+# Intro to Data Science - Course project
 
 Inference scripts are in src directory.
 Naming: Dataset_Model_Task.py
