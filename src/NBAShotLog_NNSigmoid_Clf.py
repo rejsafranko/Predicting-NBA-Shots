@@ -53,9 +53,9 @@ def main(args):
     # Build neural network.
     model = Sequential()
     model.add(
-        Dense(50, activation="relu", input_shape=(10,), kernel_regularizer=L2(0.0001))
+        Dense(50, activation="sigmoid", input_shape=(10,), kernel_regularizer=L2(0.001))
     )
-    model.add(Dense(1, activation="sigmoid", kernel_regularizer=L2(0.0001)))
+    model.add(Dense(1, activation="sigmoid", kernel_regularizer=L2(0.001)))
     model.compile(loss="binary_crossentropy", optimizer=SGD(5), metrics=["accuracy"])
 
     # Train.
