@@ -1,6 +1,4 @@
 # Intro to Data Science - Course project
 
-Inference scripts are in src directory.
-Naming: Dataset_Model_Task.py
-
-Run script.py -h for argument help.
+Training scripts are in src directory (train_model_dataset_task.py)
+Run ```script.py -h``` for argument help.
