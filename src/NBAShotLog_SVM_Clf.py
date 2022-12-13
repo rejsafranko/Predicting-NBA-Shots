@@ -47,12 +47,8 @@ def main(args):
     dataset = load_data(args.filename, args.test_size)
     model = SVC(verbose=1)
 
-    # Training the model.
+    # Train the model.
     model.fit(dataset["train"]["features"], dataset["train"]["labels"])
-
-    # Measure prediction accuracy.
-    score = model.score(dataset["test"]["features"], dataset["test"]["labels"])
-    print(score)
 
     # Save the model.
     dump(model, "./models/svm.joblib")

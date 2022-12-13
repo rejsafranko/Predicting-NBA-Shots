@@ -58,10 +58,10 @@ def main(args):
             50, activation="sigmoid", input_shape=(10,), kernel_regularizer=L2(0.0001)
         )
     )
-    model.add(Dense(1, activation="sigmoid", kernel_regularizer=L2(0.001)))
-    model.compile(loss="binary_crossentropy", optimizer=SGD(5), metrics=["accuracy"])
+    model.add(Dense(1, activation="sigmoid", kernel_regularizer=L2(0.0001)))
+    model.compile(loss="binary_crossentropy", optimizer=SGD(5))
 
-    # Train.
+    # Train the model.
     model.fit(
         dataset["train"]["features"],
         dataset["train"]["labels"],
@@ -69,13 +69,6 @@ def main(args):
         batch_size=1000,
         verbose=1,
     )
-
-    # Predict.
-    score = model.evaluate(
-        dataset["test"]["features"], dataset["test"]["labels"], verbose=1
-    )
-
-    print(f"Train set error: {score[0]}    Test set error: {score[1]}")
 
     # Save the model.
     model.save("./models/NNSigmoid")

@@ -64,12 +64,6 @@ def main(args):
         dataset["train"]["features"], dataset["train"]["labels"], verbose=1
     )
 
-    # Predict.
-    predictions = xgb_model.predict(dataset["test"]["features"])
-    score = precision_score(dataset["test"]["labels"], predictions)
-
-    print(f"Initial model results\nScore: {score}")
-
     # Optimal parameter search.
     parameters_for_testing = {
         "min_child_weight": [0.0001, 0.001, 0.01, 0.1],
@@ -89,10 +83,6 @@ def main(args):
 
     # Train fine-tuned model.
     gsearch1.fit(dataset["train"]["features"], dataset["train"]["labels"])
-
-    print(
-        f"Fine-tuned model results\nBest params: {gsearch1.best_params_}    Best score: {gsearch1.best_score_}"
-    )
 
     # Save the model.
     dump(gsearch1, "./models/xgboost.joblib")
