@@ -11,6 +11,7 @@ from sklearn.metrics import confusion_matrix, mean_squared_error, precision_scor
 from sklearn.model_selection import GridSearchCV, train_test_split
 import math
 from argparse import ArgumentParser
+from joblib import dump
 
 
 def parse_args():
@@ -60,7 +61,7 @@ def main(args):
 
     # Train initial model.
     xgb_model = XGBClassifier().fit(
-        dataset["train"]["features"], dataset["train"]["labels"]
+        dataset["train"]["features"], dataset["train"]["labels"], verbose=1
     )
 
     # Predict.
@@ -80,7 +81,10 @@ def main(args):
     xgb_model = XGBClassifier()
 
     gsearch1 = GridSearchCV(
-        estimator=xgb_model, param_grid=parameters_for_testing, scoring="precision"
+        estimator=xgb_model,
+        param_grid=parameters_for_testing,
+        scoring="precision",
+        verbose=1,
     )
 
     # Train fine-tuned model.
@@ -89,6 +93,12 @@ def main(args):
     print(
         f"Fine-tuned model results\nBest params: {gsearch1.best_params_}    Best score: {gsearch1.best_score_}"
     )
+
+    # Save the model.
+    dump(gsearch1, "./models/xgboost.joblib")
+
+    # Save test data.
+    dump(dataset["test"], "./data/test data/xgboost_test_data.joblib")
 
 
 if __name__ == "__main__":

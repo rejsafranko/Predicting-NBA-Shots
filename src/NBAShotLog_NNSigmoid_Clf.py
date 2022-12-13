@@ -8,6 +8,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from argparse import ArgumentParser
+from joblib import dump
 
 
 def parse_args():
@@ -73,6 +74,12 @@ def main(args):
     )
 
     print(f"Train set error: {score[0]}    Test set error: {score[1]}")
+
+    # Save the model.
+    model.save("./models/NNSigmoid")
+
+    # Save test data.
+    dump(dataset["test"], "./data/test data/nnsigmoid_test_data.joblib")
 
 
 if __name__ == "__main__":

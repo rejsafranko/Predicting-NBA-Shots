@@ -3,6 +3,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from argparse import ArgumentParser
+from joblib import dump
 
 
 def parse_args():
@@ -44,7 +45,7 @@ def load_data(filename, test_size):
 
 def main(args):
     dataset = load_data(args.filename, args.test_size)
-    model = SVC()
+    model = SVC(verbose=1)
 
     # Training the model.
     model.fit(dataset["train"]["features"], dataset["train"]["labels"])
@@ -52,6 +53,12 @@ def main(args):
     # Measure prediction accuracy.
     score = model.score(dataset["test"]["features"], dataset["test"]["labels"])
     print(score)
+
+    # Save the model.
+    dump(model, "./models/svm.joblib")
+
+    # Save test data.
+    dump(dataset["test"], "./data/test data/svm_test_data.joblib")
 
 
 if __name__ == "__main__":
