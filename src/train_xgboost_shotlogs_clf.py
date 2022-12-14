@@ -25,17 +25,9 @@ def load_dataset(filename, test_size):
     df = pd.read_csv(filename, index_col=0)
     labels = df["SHOT_RESULT"]
 
-    # Keep only numeric features.
+    # Remove labels and excess features.
     features = df.drop(
-        [
-            "LOCATION",
-            "SHOT_NUMBER",
-            "GAME_CLOCK",
-            "CLOSEST_DEFENDER_PLAYER_ID",
-            "player_id",
-            "SHOT_RESULT",
-        ],
-        axis=1,
+        ["CLOSEST_DEFENDER_PLAYER_ID", "player_id", "SHOT_RESULT"], axis=1
     )
 
     # Join features and labels.
@@ -59,12 +51,7 @@ def load_dataset(filename, test_size):
 def main(args):
     dataset = load_dataset(args.filename, args.test_size)
 
-    # Train initial model.
-    xgb_model = XGBClassifier().fit(
-        dataset["train"]["features"], dataset["train"]["labels"], verbose=1
-    )
-
-    # Optimal parameter search.
+    # Optimal model selection.
     parameters_for_testing = {
         "min_child_weight": [0.0001, 0.001, 0.01, 0.1],
         "learning_rate": [0.0001, 0.001],
@@ -72,12 +59,12 @@ def main(args):
         "max_depth": [3, 4],
     }
 
-    xgb_model = XGBClassifier()
+    model = XGBClassifier()
 
     gsearch1 = GridSearchCV(
-        estimator=xgb_model,
+        estimator=model,
         param_grid=parameters_for_testing,
-        scoring="precision",
+        scoring="accuracy",
         verbose=1,
     )
 

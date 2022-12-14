@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.svm import SVC
 from argparse import ArgumentParser
 from joblib import dump
@@ -22,15 +22,19 @@ def load_data(filename, test_size):
         ["CLOSEST_DEFENDER_PLAYER_ID", "player_id", "SHOT_RESULT"], axis=1
     )
 
-    # Normalize features.
-    features[:] = MinMaxScaler().fit_transform(features.values)
-
     # Join features and labels.
     df = pd.concat([features, labels], axis=1)
 
     # Create dataset split.
     dataset = dict()
     train, test = train_test_split(df, test_size=test_size)
+
+    # Normalize features.
+    minmax_scaler = MinMaxScaler()
+    train[:-1] = minmax_scaler.fit_transform(train[:-1].values)
+    test[:-1] = minmax_scaler.transform(test[:-1].values)
+
+    # Prepare dataset dictionaries.
     dataset["train"] = {
         "features": train.loc[:, train.columns != "SHOT_RESULT"],
         "labels": train["SHOT_RESULT"],
@@ -45,6 +49,7 @@ def load_data(filename, test_size):
 
 def main(args):
     dataset = load_data(args.filename, args.test_size)
+
     model = SVC(verbose=1)
 
     # Train the model.

@@ -1,6 +1,7 @@
 import pandas as pd
+import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.linear_model import LogisticRegression
 from argparse import ArgumentParser
 from joblib import dump
@@ -22,15 +23,19 @@ def load_data(filename, test_size):
         ["CLOSEST_DEFENDER_PLAYER_ID", "player_id", "SHOT_RESULT"], axis=1
     )
 
-    # Normalize features.
-    features[:] = MinMaxScaler().fit_transform(features.values)
-
     # Join features and labels.
     df = pd.concat([features, labels], axis=1)
 
     # Create dataset split.
     dataset = dict()
     train, test = train_test_split(df, test_size=test_size)
+
+    # Normalize features.
+    minmax_scaler = MinMaxScaler()
+    train[:] = minmax_scaler.fit_transform(train[:].values)
+    test[:] = minmax_scaler.transform(test[:].values)
+
+    # Prepare dataset dictionaries.
     dataset["train"] = {
         "features": train.loc[:, train.columns != "SHOT_RESULT"],
         "labels": train["SHOT_RESULT"],
@@ -45,13 +50,27 @@ def load_data(filename, test_size):
 
 def main(args):
     dataset = load_data(args.filename, args.test_size)
+
+    # Optimal model selection.
+    parameters_for_testing = {
+        "C": np.logspace(-4, 4, 50),
+        "penalty": ["l1", "l2"],
+    }
+
     model = LogisticRegression(verbose=1)
 
-    # Train the model.
-    model.fit(dataset["train"]["features"], dataset["train"]["labels"])
+    gsearch1 = GridSearchCV(
+        estimator=model,
+        param_grid=parameters_for_testing,
+        scoring="accuracy",
+        verbose=1,
+    )
+
+    # Train the fine-tuned model.
+    gsearch1.fit(dataset["train"]["features"], dataset["train"]["labels"])
 
     # Save the model.
-    dump(model, "./models/logreg.joblib")
+    dump(gsearch1, "./models/logreg.joblib")
 
     # Save test data.
     dump(dataset["test"], "./data/test data/logreg_test_data.joblib")

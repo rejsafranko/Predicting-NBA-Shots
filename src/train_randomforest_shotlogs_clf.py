@@ -27,6 +27,8 @@ def load_data(filename, test_size):
     # Create dataset split.
     dataset = dict()
     train, test = train_test_split(df, test_size=test_size)
+
+    # Prepare dataset dictionaries.
     dataset["train"] = {
         "features": train.loc[:, train.columns != "SHOT_RESULT"],
         "labels": train["SHOT_RESULT"],
@@ -41,7 +43,7 @@ def load_data(filename, test_size):
 
 def main(args):
     dataset = load_data(args.filename, args.test_size)
-    model = RandomForestClassifier()
+    model = RandomForestClassifier(verbose=1)
 
     # Train the model.
     model.fit(dataset["train"]["features"], dataset["train"]["labels"])
