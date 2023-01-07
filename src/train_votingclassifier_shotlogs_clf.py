@@ -1,8 +1,7 @@
-import numpy as np
 import pandas as pd
-from xgboost import XGBClassifier
-from sklearn.model_selection import GridSearchCV, train_test_split
-import math
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import VotingClassifier
 from argparse import ArgumentParser
 from joblib import dump
 
@@ -14,11 +13,11 @@ def parse_args():
     return parser.parse_args()
 
 
-def load_dataset(filename, test_size):
+def load_data(filename, test_size):
     df = pd.read_csv(filename, index_col=0)
     labels = df["SHOT_RESULT"]
 
-    # Remove labels and excess features.
+    # Keep only numeric features.
     features = df.drop(
         ["CLOSEST_DEFENDER_PLAYER_ID", "player_id", "SHOT_RESULT"], axis=1
     )
@@ -29,6 +28,13 @@ def load_dataset(filename, test_size):
     # Create dataset split.
     dataset = dict()
     train, test = train_test_split(df, test_size=test_size, random_state=2311)
+
+    # Normalize features.
+    minmax_scaler = MinMaxScaler()
+    train[:] = minmax_scaler.fit_transform(train[:].values)
+    test[:] = minmax_scaler.transform(test[:].values)
+
+    # Prepare dataset dictionaries.
     dataset["train"] = {
         "features": train.loc[:, train.columns != "SHOT_RESULT"],
         "labels": train["SHOT_RESULT"],
@@ -42,33 +48,7 @@ def load_dataset(filename, test_size):
 
 
 def main(args):
-    dataset = load_dataset(args.filename, args.test_size)
-
-    # Optimal model selection.
-    parameters_for_testing = {
-        "min_child_weight": [0.0001, 0.001, 0.01, 0.1],
-        "learning_rate": [0.0001, 0.001],
-        "n_estimators": [1, 3, 5, 10],
-        "max_depth": [3, 4],
-    }
-
-    model = XGBClassifier()
-
-    gsearch1 = GridSearchCV(
-        estimator=model,
-        param_grid=parameters_for_testing,
-        scoring="accuracy",
-        verbose=1,
-    )
-
-    # Train fine-tuned model.
-    gsearch1.fit(dataset["train"]["features"], dataset["train"]["labels"])
-
-    # Save the model.
-    dump(gsearch1, "./models/xgboost.joblib")
-
-    # Save test data.
-    dump(dataset["test"], "./data/test data/xgboost_test_data.joblib")
+    pass
 
 
 if __name__ == "__main__":
