@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split  # , GridSearchCV
 from sklearn.svm import SVC
 from argparse import ArgumentParser
 from joblib import dump
@@ -27,7 +27,7 @@ def load_data(filename, test_size):
 
     # Create dataset split.
     dataset = dict()
-    train, test = train_test_split(df, test_size=test_size, random_state=2311)
+    train, test = train_test_split(df, test_size=test_size, random_state=11)
 
     # Normalize features.
     minmax_scaler = MinMaxScaler()
@@ -50,7 +50,22 @@ def load_data(filename, test_size):
 def main(args):
     dataset = load_data(args.filename, args.test_size)
 
+    # Optimal model selection.
+    # parameters_for_testing = {
+    #    "C": [0.1, 1, 10, 100],
+    #    "gamma": [0.001, 0.01, 0.1, 1],
+    #    "kernel": ["linear", "rbf", "poly", "sigmoid"],
+    # }
+
     model = SVC(verbose=1)
+
+    # gsearch1 = GridSearchCV(
+    #    estimator=model,
+    #    param_grid=parameters_for_testing,
+    #    scoring="accuracy",
+    #    verbose=1,
+    #    cv=2,
+    # )
 
     # Train the model.
     model.fit(dataset["train"]["features"], dataset["train"]["labels"])

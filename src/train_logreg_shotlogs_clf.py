@@ -28,7 +28,7 @@ def load_data(filename, test_size):
 
     # Create dataset split.
     dataset = dict()
-    train, test = train_test_split(df, test_size=test_size, random_state=2311)
+    train, test = train_test_split(df, test_size=test_size, random_state=11)
 
     # Normalize features.
     minmax_scaler = MinMaxScaler()

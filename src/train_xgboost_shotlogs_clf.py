@@ -1,8 +1,6 @@
-import numpy as np
 import pandas as pd
 from xgboost import XGBClassifier
 from sklearn.model_selection import GridSearchCV, train_test_split
-import math
 from argparse import ArgumentParser
 from joblib import dump
 
@@ -28,7 +26,7 @@ def load_dataset(filename, test_size):
 
     # Create dataset split.
     dataset = dict()
-    train, test = train_test_split(df, test_size=test_size, random_state=2311)
+    train, test = train_test_split(df, test_size=test_size, random_state=11)
     dataset["train"] = {
         "features": train.loc[:, train.columns != "SHOT_RESULT"],
         "labels": train["SHOT_RESULT"],

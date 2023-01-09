@@ -5,7 +5,6 @@ from keras.optimizers import SGD
 from keras.regularizers import L2
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
 from argparse import ArgumentParser
 from joblib import dump
 
@@ -31,7 +30,7 @@ def load_data(filename, test_size):
 
     # Create dataset split.
     dataset = dict()
-    train, test = train_test_split(df, test_size=test_size, random_state=2311)
+    train, test = train_test_split(df, test_size=test_size, random_state=11)
 
     # Normalize features.
     minmax_scaler = MinMaxScaler()

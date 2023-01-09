@@ -1,10 +1,7 @@
 import pandas as pd
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.optimizers import SGD
-from keras.regularizers import L2
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.linear_model import SGDClassifier
 from argparse import ArgumentParser
 from joblib import dump
 
@@ -34,8 +31,8 @@ def load_data(filename, test_size):
 
     # Normalize features.
     minmax_scaler = MinMaxScaler()
-    train[:] = minmax_scaler.fit_transform(train[:].values)
-    test[:] = minmax_scaler.transform(test[:].values)
+    train[:-1] = minmax_scaler.fit_transform(train[:-1].values)
+    test[:-1] = minmax_scaler.transform(test[:-1].values)
 
     # Prepare dataset dictionaries.
     dataset["train"] = {
@@ -53,30 +50,29 @@ def load_data(filename, test_size):
 def main(args):
     dataset = load_data(args.filename, args.test_size)
 
-    # Build neural network.
-    model = Sequential()
-    model.add(
-        Dense(
-            50, activation="sigmoid", input_shape=(10,), kernel_regularizer=L2(0.0001)
-        )
-    )
-    model.add(Dense(1, activation="sigmoid", kernel_regularizer=L2(0.0001)))
-    model.compile(loss="binary_crossentropy", optimizer=SGD(5))
+    # Optimal model selection.
+    parameters_for_testing = {
+        "alpha": [0.001, 0.01, 0.1],
+        "penalty": ["l2", "l1", "elasticnet"],
+    }
 
-    # Train the model.
-    model.fit(
-        dataset["train"]["features"],
-        dataset["train"]["labels"],
-        epochs=25,
-        batch_size=1000,
+    model = SGDClassifier(loss="log_loss", penalty="l2")
+
+    gsearch1 = GridSearchCV(
+        estimator=model,
+        param_grid=parameters_for_testing,
+        scoring="accuracy",
         verbose=1,
     )
 
+    # Train the model.
+    gsearch1.fit(dataset["train"]["features"], dataset["train"]["labels"])
+
     # Save the model.
-    model.save("./models/NNSigmoid")
+    dump(gsearch1, "./models/sgdlogreg.joblib")
 
     # Save test data.
-    dump(dataset["test"], "./data/test data/nnsigmoid_test_data.joblib")
+    dump(dataset["test"], "./data/test data/sgdlogreg_test_data.joblib")
 
 
 if __name__ == "__main__":
