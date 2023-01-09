@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
 from argparse import ArgumentParser
 from joblib import dump
 
@@ -53,11 +53,10 @@ def main(args):
 
     # Optimal model selection.
     parameters_for_testing = {
-        "C": np.logspace(-4, 4, 50),
-        "penalty": ["l1", "l2"],
+        "n_neighbors": list(range(1, 21)),
     }
 
-    model = LogisticRegression(verbose=1)
+    model = KNeighborsClassifier(algorithm="auto")
 
     gsearch1 = GridSearchCV(
         estimator=model,
@@ -70,10 +69,10 @@ def main(args):
     gsearch1.fit(dataset["train"]["features"], dataset["train"]["labels"])
 
     # Save the model.
-    dump(gsearch1, "./models/logreg.joblib")
+    dump(gsearch1, "./models/knnclf.joblib")
 
     # Save test data.
-    dump(dataset["test"], "./data/test data/logreg_test_data.joblib")
+    dump(dataset["test"], "./data/test data/knnclf_test_data.joblib")
 
 
 if __name__ == "__main__":

@@ -59,7 +59,7 @@ def main(args):
         verbose=1,
     )
 
-    # Train fine-tuned model.
+    # Train the model.
     gsearch1.fit(dataset["train"]["features"], dataset["train"]["labels"])
 
     # Save the model.

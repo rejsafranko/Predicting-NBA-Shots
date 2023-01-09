@@ -46,8 +46,8 @@ def main(args):
 
     # Optimal model selection.
     parameters_for_testing = {
-        "n_estimators": [10, 50, 100, 200],
-        "max_depth": [None, 5, 10, 20],
+        "n_estimators": [10, 50, 100, 200, 300],
+        "max_depth": [5, 10, 20],
         "min_samples_leaf": [1, 2, 4],
     }
 

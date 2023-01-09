@@ -1,8 +1,6 @@
 import pandas as pd
-import numpy as np
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.model_selection import GridSearchCV, train_test_split
 from argparse import ArgumentParser
 from joblib import dump
 
@@ -14,11 +12,11 @@ def parse_args():
     return parser.parse_args()
 
 
-def load_data(filename, test_size):
+def load_dataset(filename, test_size):
     df = pd.read_csv(filename, index_col=0)
     labels = df["SHOT_RESULT"]
 
-    # Keep only numeric features.
+    # Remove labels and excess features.
     features = df.drop(
         ["CLOSEST_DEFENDER_PLAYER_ID", "player_id", "SHOT_RESULT"], axis=1
     )
@@ -29,13 +27,6 @@ def load_data(filename, test_size):
     # Create dataset split.
     dataset = dict()
     train, test = train_test_split(df, test_size=test_size, random_state=11)
-
-    # Normalize features.
-    minmax_scaler = MinMaxScaler()
-    train[:] = minmax_scaler.fit_transform(train[:].values)
-    test[:] = minmax_scaler.transform(test[:].values)
-
-    # Prepare dataset dictionaries.
     dataset["train"] = {
         "features": train.loc[:, train.columns != "SHOT_RESULT"],
         "labels": train["SHOT_RESULT"],
@@ -49,15 +40,15 @@ def load_data(filename, test_size):
 
 
 def main(args):
-    dataset = load_data(args.filename, args.test_size)
+    dataset = load_dataset(args.filename, args.test_size)
 
     # Optimal model selection.
     parameters_for_testing = {
-        "C": np.logspace(-4, 4, 50),
-        "penalty": ["l1", "l2"],
+        "learning_rate": [0.0001, 0.001, 0.01],
+        "n_estimators": [5, 10, 50, 100],
     }
 
-    model = LogisticRegression(verbose=1)
+    model = AdaBoostClassifier()
 
     gsearch1 = GridSearchCV(
         estimator=model,
@@ -70,10 +61,10 @@ def main(args):
     gsearch1.fit(dataset["train"]["features"], dataset["train"]["labels"])
 
     # Save the model.
-    dump(gsearch1, "./models/logreg.joblib")
+    dump(gsearch1, "./models/adaboost.joblib")
 
     # Save test data.
-    dump(dataset["test"], "./data/test data/logreg_test_data.joblib")
+    dump(dataset["test"], "./data/test data/adaboost_test_data.joblib")
 
 
 if __name__ == "__main__":
