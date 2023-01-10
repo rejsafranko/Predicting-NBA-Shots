@@ -51,27 +51,25 @@ def main(args):
     dataset = load_data(args.filename, args.test_size)
 
     # Optimal model selection.
-    # parameters_for_testing = {
-    #    "loss": ["hinge", "log_loss", "squared_hinge", "modified_huber", "perceptron"],
-    #    "alpha": [0.001, 0.01, 0.1],
-    #    "penalty": ["l2", "l1", "elasticnet", "none"],
-    # }
+    parameters_for_testing = {
+        "alpha": [0.001, 0.01, 0.1],
+    }
 
-    model = SGDClassifier(loss="hinge", penalty="elasticnet", verbose=1)
+    model = SGDClassifier(loss="hinge", penalty="l2")
 
-    # gsearch1 = GridSearchCV(
-    #    estimator=model,
-    #    param_grid=parameters_for_testing,
-    #    scoring="accuracy",
-    #    verbose=1,
-    #    cv=2,
-    # )
+    gsearch1 = GridSearchCV(
+        estimator=model,
+        param_grid=parameters_for_testing,
+        scoring="accuracy",
+        verbose=1,
+        cv=2,
+    )
 
     # Train the model.
-    model.fit(dataset["train"]["features"], dataset["train"]["labels"])
+    gsearch1.fit(dataset["train"]["features"], dataset["train"]["labels"])
 
     # Save the model.
-    dump(model, "./models/sgdsvm.joblib")
+    dump(gsearch1, "./models/sgdsvm.joblib")
 
     # Save test data.
     dump(dataset["test"], "./data/test data/sgdsvm_test_data.joblib")
