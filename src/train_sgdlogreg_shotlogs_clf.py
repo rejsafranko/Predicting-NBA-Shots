@@ -53,7 +53,6 @@ def main(args):
     # Optimal model selection.
     parameters_for_testing = {
         "alpha": [0.001, 0.01, 0.1],
-        "penalty": ["l2", "l1", "elasticnet"],
     }
 
     model = SGDClassifier(loss="log_loss", penalty="l2")
