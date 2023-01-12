@@ -1,119 +1,172 @@
+"""
+TabTransformer
+Author: [Khalid Salama](https://www.linkedin.com/in/khalid-salama-24403144/)
+Paper: https://arxiv.org/abs/2012.06678
+Code link: https://github.com/keras-team/keras-io/blob/master/examples/structured_data/tabtransformer.py
+"""
+
+import math
+import numpy as np
 import pandas as pd
 import tensorflow as tf
-import tensorflow_addons as tfa
-import keras
+from tensorflow import keras
 from keras import layers
-from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
-from argparse import ArgumentParser
-from joblib import dump
+from sklearn.preprocessing import MinMaxScaler
+import tensorflow_addons as tfa
+import matplotlib.pyplot as plt
+
+dataset = pd.read_csv("./data/processed/shotlogs_processed")
+
+CSV_HEADER = [
+    "LOCATION",
+    "FINAL_MARGIN",
+    "SHOT_NUMBER",
+    "PERIOD",
+    "GAME_CLOCK",
+    "SHOT_CLOCK",
+    "DRIBBLES",
+    "TOUCH_TIME",
+    "SHOT_DIST",
+    "CLOSE_DEF_DIST",
+    "CLOSEST_DEFENDER_PLAYER_ID",
+    "player_id",
+    "SHOT_RESULT",
+]
+dataset = dataset.reindex(columns=CSV_HEADER)
+
+minmax_scaler = MinMaxScaler()
+dataset[1:-3] = minmax_scaler.fit_transform(dataset[1:-3].values)
+
+train, test = train_test_split(dataset, test_size=0.05)
+
+train.to_csv("./data/processed/tabtransformer_train.csv", index=False, header=False)
+test.to_csv("./data/processed/tabtransformer_test.csv", index=False, header=False)
 
 
-def parse_args():
-    parser = ArgumentParser()
-    parser.add_argument("filename")
-    parser.add_argument("test_size", type=float)
-    return parser.parse_args()
+# Dataset metadata.
+
+# A list of the numerical feature names.
+NUMERIC_FEATURE_NAMES = [
+    "FINAL_MARGIN",
+    "SHOT_NUMBER",
+    "PERIOD",
+    "GAME_CLOCK",
+    "SHOT_CLOCK",
+    "DRIBBLES",
+    "TOUCH_TIME",
+    "SHOT_DIST",
+    "CLOSE_DEF_DIST",
+]
+# A dictionary of the categorical features and their vocabulary.
+CATEGORICAL_FEATURES_WITH_VOCABULARY = {
+    "LOCATION": sorted(list(train["LOCATION"].unique())),
+    "CLOSEST_DEFENDER_PLAYER_ID": sorted(
+        list(train["CLOSEST_DEFENDER_PLAYER_ID"].unique())
+    ),
+    "player_id": sorted(list(train["player_id"].unique())),
+    "SHOT_RESULT": sorted(list(train["SHOT_RESULT"].unique())),
+}
+
+# Name of the column to be used as instances weight.
+WEIGHT_COLUMN_NAME = "fnlwgt"
+# A list of the categorical feature names.
+CATEGORICAL_FEATURE_NAMES = list(CATEGORICAL_FEATURES_WITH_VOCABULARY.keys())
+# A list of all the input features.
+FEATURE_NAMES = NUMERIC_FEATURE_NAMES + CATEGORICAL_FEATURE_NAMES
+# A list of column default values for each feature.
+COLUMN_DEFAULTS = [
+    [0.0] if feature_name in NUMERIC_FEATURE_NAMES + [WEIGHT_COLUMN_NAME] else ["NA"]
+    for feature_name in CSV_HEADER
+]
+# The name of the target feature.
+TARGET_FEATURE_NAME = "SHOT_RESULT"
+# A list of the labels of the target features.
+TARGET_LABELS = [0, 1]
+
+# Configure the hyperparameters.
+LEARNING_RATE = 0.001
+WEIGHT_DECAY = 0.0001
+DROPOUT_RATE = 0.2
+BATCH_SIZE = 265
+NUM_EPOCHS = 15
+
+NUM_TRANSFORMER_BLOCKS = 3  # Number of transformer blocks.
+NUM_HEADS = 4  # Number of attention heads.
+EMBEDDING_DIMS = 16  # Embedding dimensions of the categorical features.
+MLP_HIDDEN_UNITS_FACTORS = [
+    2,
+    1,
+]  # MLP hidden layer units, as factors of the number of inputs.
+NUM_MLP_BLOCKS = 2  # Number of MLP blocks in the baseline model.
 
 
-def load_data(filename, test_size):
-    df = pd.read_csv(filename, index_col=0)
-    labels = df["SHOT_RESULT"]
-
-    # Swap columns - last 3 columns are categorical and labels.
-    swap = [
-        "LOCATION",
-        "FINAL_MARGIN",
-        "SHOT_NUMBER",
-        "PERIOD",
-        "GAME_CLOCK",
-        "SHOT_CLOCK",
-        "DRIBBLES",
-        "TOUCH_TIME",
-        "SHOT_DIST",
-        "CLOSE_DEF_DIST",
-        "CLOSEST_DEFENDER_PLAYER_ID",
-        "player_id",
-        "SHOT_RESULT",
-    ]
-    df = df.reindex(columns=swap)
-
-    # Create dataset split.
-    dataset = dict()
-    train, test = train_test_split(df, test_size=test_size, random_state=11)
-    train, valid = train_test_split(train, test_size=args.test_size, random_state=11)
-
-    # Normalize features.
-    minmax_scaler = MinMaxScaler()
-    train[:-3] = minmax_scaler.fit_transform(train[:-3].values)
-    valid[:-3] = minmax_scaler.transform(valid[:-3].values)
-    test[:-3] = minmax_scaler.transform(test[:-3].values)
-
-    # Prepare dataset dictionaries.
-    dataset["train"] = {
-        "features": train.loc[:, train.columns != "SHOT_RESULT"],
-        "labels": train["SHOT_RESULT"],
-    }
-    dataset["valid"] = {
-        "features": valid.loc[:, valid.columns != "SHOT_RESULT"],
-        "labels": valid["SHOT_RESULT"],
-    }
-    dataset["test"] = {
-        "features": test.loc[:, test.columns != "SHOT_RESULT"],
-        "labels": test["SHOT_RESULT"],
-    }
-
-    return dataset
+# Implement data reading pipeline.
+target_label_lookup = layers.StringLookup(
+    vocabulary=TARGET_LABELS, mask_token=None, num_oov_indices=0
+)
 
 
-def create_metadata(dataset):
-    NUMERIC_FEATURE_NAMES = [
-        "FINAL_MARGIN",
-        "SHOT_NUMBER",
-        "PERIOD",
-        "GAME_CLOCK",
-        "SHOT_CLOCK",
-        "DRIBBLES",
-        "TOUCH_TIME",
-        "SHOT_DIST",
-        "CLOSE_DEF_DIST",
-    ]
-
-    CATEGORICAL_FEATURES_WITH_VOCABULARY = {
-        "LOCATION": sorted(list(dataset["LOCATION"].unique())),
-        "CLOSEST_DEFENDER_PLAYER_ID": sorted(
-            list(dataset["CLOSEST_DEFENDER_PLAYER_ID"].unique())
-        ),
-        "player_id": sorted(list(dataset["player_id"].unique())),
-    }
-    CATEGORICAL_FEATURE_NAMES = list(CATEGORICAL_FEATURES_WITH_VOCABULARY.keys())
-
-    TARGET_FEATURE_NAME = "SHOT_RESULT"
-    TARGET_LABELS = [0, 1]
-
-    WEIGHT_COLUMN_NAME = "fnlwgt"
-    FEATURE_NAMES = NUMERIC_FEATURE_NAMES + CATEGORICAL_FEATURE_NAMES
-    COLUMN_DEFAULTS = [
-        [0.0]
-        if feature_name in NUMERIC_FEATURE_NAMES + [WEIGHT_COLUMN_NAME]
-        else ["NA"]
-        for feature_name in dataset.columns.tolist()
-    ]
-
-    metadata = {
-        "NUMERIC_FEATURE_NAMES": NUMERIC_FEATURE_NAMES,
-        "CATEGORICAL_FEATURES_WITH_VOCABULARY": CATEGORICAL_FEATURES_WITH_VOCABULARY,
-        "CATEGORICAL_FEATURE_NAMES": CATEGORICAL_FEATURE_NAMES,
-        "TARGET_FEATURE_NAME": TARGET_FEATURE_NAME,
-        "TARGET_LABELS": TARGET_LABELS,
-        "WEIGHT_COLUMN_NAME": WEIGHT_COLUMN_NAME,
-        "COLUMN_DEFAULTS": COLUMN_DEFAULTS,
-    }
-
-    return metadata
+def prepare_example(features, target):
+    target_index = target_label_lookup(target)
+    weights = features.pop(WEIGHT_COLUMN_NAME)
+    return features, target_index, weights
 
 
-def create_model_inputs(FEATURE_NAMES, NUMERIC_FEATURE_NAMES):
+def get_dataset_from_csv(csv_file_path, batch_size=128, shuffle=False):
+    dataset = tf.data.experimental.make_csv_dataset(
+        csv_file_path,
+        batch_size=batch_size,
+        column_names=CSV_HEADER,
+        column_defaults=COLUMN_DEFAULTS,
+        label_name=TARGET_FEATURE_NAME,
+        num_epochs=1,
+        header=False,
+        na_value="?",
+        shuffle=shuffle,
+    ).map(prepare_example, num_parallel_calls=tf.data.AUTOTUNE, deterministic=False)
+    return dataset.cache()
+
+
+# Implement a training and evaluation procedure.
+def run_experiment(
+    model,
+    train_data_file,
+    test_data_file,
+    num_epochs,
+    learning_rate,
+    weight_decay,
+    batch_size,
+):
+
+    optimizer = tfa.optimizers.AdamW(
+        learning_rate=learning_rate, weight_decay=weight_decay
+    )
+
+    model.compile(
+        optimizer=optimizer,
+        loss=keras.losses.BinaryCrossentropy(),
+        metrics=[keras.metrics.BinaryAccuracy(name="accuracy")],
+    )
+
+    train_dataset = get_dataset_from_csv(train_data_file, batch_size, shuffle=True)
+    validation_dataset = get_dataset_from_csv(test_data_file, batch_size)
+
+    print("Start training the model...")
+    history = model.fit(
+        train_dataset, epochs=num_epochs, validation_data=validation_dataset
+    )
+    print("Model training finished")
+
+    _, accuracy = model.evaluate(validation_dataset, verbose=0)
+
+    print(f"Validation accuracy: {round(accuracy * 100, 2)}%")
+
+    return history
+
+
+# Create model inputs.
+def create_model_inputs():
     inputs = {}
     for feature_name in FEATURE_NAMES:
         if feature_name in NUMERIC_FEATURE_NAMES:
@@ -127,12 +180,8 @@ def create_model_inputs(FEATURE_NAMES, NUMERIC_FEATURE_NAMES):
     return inputs
 
 
-def encode_inputs(
-    inputs,
-    embedding_dims,
-    CATEGORICAL_FEATURE_NAMES,
-    CATEGORICAL_FEATURES_WITH_VOCABULARY,
-):
+# Encode features.
+def encode_inputs(inputs, embedding_dims):
 
     encoded_categorical_feature_list = []
     numerical_feature_list = []
@@ -174,6 +223,7 @@ def encode_inputs(
     return encoded_categorical_feature_list, numerical_feature_list
 
 
+## Implement an MLP block.
 def create_mlp(hidden_units, dropout_rate, activation, normalization_layer, name=None):
 
     mlp_layers = []
@@ -183,6 +233,24 @@ def create_mlp(hidden_units, dropout_rate, activation, normalization_layer, name
         mlp_layers.append(layers.Dropout(dropout_rate))
 
     return keras.Sequential(mlp_layers, name=name)
+
+
+"""
+## Experiment: TabTransformer
+The TabTransformer architecture works as follows:
+1. All the categorical features are encoded as embeddings, using the same `embedding_dims`.
+This means that each value in each categorical feature will have its own embedding vector.
+2. A column embedding, one embedding vector for each categorical feature, is added (point-wise) to the categorical feature embedding.
+3. The embedded categorical features are fed into a stack of Transformer blocks.
+Each Transformer block consists of a multi-head self-attention layer followed by a feed-forward layer.
+3. The outputs of the final Transformer layer, which are the *contextual embeddings* of the categorical features,
+are concatenated with the input numerical features, and fed into a final MLP block.
+4. A `softmax` classifer is applied at the end of the model.
+The [paper](https://arxiv.org/abs/2012.06678) discusses both addition and concatenation of the column embedding in the
+*Appendix: Experiment and Model Details* section.
+The architecture of TabTransformer is shown below, as presented in the paper.
+<img src="https://raw.githubusercontent.com/keras-team/keras-io/master/examples/structured_data/img/tabtransformer/tabtransformer.png" width="500"/>
+"""
 
 
 def create_tabtransformer_classifier(
@@ -272,58 +340,23 @@ def create_tabtransformer_classifier(
     return model
 
 
-def main(args):
-    dataset = load_data(args.filename, args.test_size)
-    dataset_metadata = create_metadata(dataset["train"])
+tabtransformer_model = create_tabtransformer_classifier(
+    num_transformer_blocks=NUM_TRANSFORMER_BLOCKS,
+    num_heads=NUM_HEADS,
+    embedding_dims=EMBEDDING_DIMS,
+    mlp_hidden_units_factors=MLP_HIDDEN_UNITS_FACTORS,
+    dropout_rate=DROPOUT_RATE,
+)
 
-    # Configure hyperparameters.
-    LEARNING_RATE = 0.001
-    WEIGHT_DECAY = 0.0001
-    DROPOUT_RATE = 0.2
-    BATCH_SIZE = 265
-    NUM_EPOCHS = 15
-    NUM_TRANSFORMER_BLOCKS = 3  # Number of transformer blocks.
-    NUM_HEADS = 4  # Number of attention heads.
-    EMBEDDING_DIMS = 16  # Embedding dimensions of the categorical features.
-    MLP_HIDDEN_UNITS_FACTORS = [
-        2,
-        1,
-    ]  # MLP hidden layer units, as factors of the number of inputs.
-    NUM_MLP_BLOCKS = 2  # Number of MLP blocks in the baseline model.
+print("Total model weights:", tabtransformer_model.count_params())
+keras.utils.plot_model(tabtransformer_model, show_shapes=True, rankdir="LR")
 
-    # Train the model.
-    optimizer = tfa.optimizers.AdamW(
-        learning_rate=LEARNING_RATE, weight_decay=WEIGHT_DECAY
-    )
-
-    model = create_tabtransformer_classifier(
-        num_transformer_blocks=NUM_TRANSFORMER_BLOCKS,
-        num_heads=NUM_HEADS,
-        embedding_dims=EMBEDDING_DIMS,
-        mlp_hidden_units_factors=MLP_HIDDEN_UNITS_FACTORS,
-        dropout_rate=DROPOUT_RATE,
-    )
-
-    model.compile(
-        optimizer=optimizer,
-        loss=keras.losses.BinaryCrossentropy(),
-        metrics=[keras.metrics.BinaryAccuracy(name="accuracy")],
-    )
-
-    history = model.fit(
-        dataset["train"]["features"],
-        epochs=NUM_EPOCHS,
-        validation_data=dataset["valid"]["features"],
-        batch_size=BATCH_SIZE,
-    )
-
-    # Save the model.
-    model.save("./models/tabtransformer")
-
-    # Save test data.
-    dump(dataset["test"], "./data/test data/tabtransformer_test_data.joblib")
-
-
-if __name__ == "__main__":
-    args = parse_args()
-    main(args)
+history = run_experiment(
+    model=tabtransformer_model,
+    train_data_file="./data/processed/tabtransformer_train.csv",
+    test_data_file="./data/processed/tabtransformer_test.csv",
+    num_epochs=NUM_EPOCHS,
+    learning_rate=LEARNING_RATE,
+    weight_decay=WEIGHT_DECAY,
+    batch_size=BATCH_SIZE,
+)
