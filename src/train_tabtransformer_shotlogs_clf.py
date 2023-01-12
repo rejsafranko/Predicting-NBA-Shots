@@ -16,7 +16,7 @@ from sklearn.preprocessing import MinMaxScaler
 import tensorflow_addons as tfa
 import matplotlib.pyplot as plt
 
-dataset = pd.read_csv("./data/processed/shotlogs_processed")
+dataset = pd.read_csv("./data/processed/shotlogs_processed.csv")
 
 CSV_HEADER = [
     "LOCATION",
@@ -45,7 +45,6 @@ test.to_csv("./data/processed/tabtransformer_test.csv", index=False, header=Fals
 
 
 # Dataset metadata.
-
 # A list of the numerical feature names.
 NUMERIC_FEATURE_NAMES = [
     "FINAL_MARGIN",
