@@ -6,7 +6,7 @@ Welcome to the Predicting NBA Shots project, an assignment for the Intro to Data
 ## Key Elements
 Dataset: NBA Shot Logs, Season 14-15: The core of this analysis lies in the data captured during the 2014-2015 NBA season, providing the foundation for training and evaluating the predictive models.
 
-Models: A diverse array of models have been employed to tackle the shot classification challenge: Logistic Regression, Support Vector Machine (SVM), Tabular Transformer, k-Nearest Neighbors (kNN) Classifier, Stochastic Gradient Descent (SGD) Classifier, Fully Connected Neural Networks (FCNN), XGBoost, Voting Classifier, AdaBoost, LightGBM, Random Forest, Naive Bayes
+Models: A diverse array of models have been employed to tackle the shot classification challenge: Logistic Regression, Support Vector Machine (SVM), Tabular Transformer, k-Nearest Neighbors (kNN) Classifier, Stochastic Gradient Descent (SGD) Classifier, Fully Connected Neural Networks (FCNN), XGBoost, Voting Classifier, AdaBoost, LightGBM, Random Forest, Naive Bayes.
 
 ## Project Structure
 src/: Explore the training scripts in this directory, specifically train_[model]_[dataset]_[task].py, to delve into the model training process.
