@@ -10,6 +10,7 @@ Models: A diverse array of models have been employed to tackle the shot classifi
 
 ## Project Structure
 src/: Explore the training scripts in this directory, specifically train_[model]_[dataset]_[task].py, to delve into the model training process.
+
 notebooks/: Gain deeper insights into model performance through the model_performance_analysis.ipynb notebook.
 
 Run ```python script.py -h``` for help.
