@@ -1,5 +1,7 @@
 # Predicting NBA Shots
 
+<img alt="FER UniZG" src="https://github.com/rejsafranko/Predicting-NBA-Shots/blob/main/icon.jpg" height="100" width="150">
+
 ## Overview
 Welcome to the Predicting NBA Shots project, an assignment for the Intro to Data Science university course. This project revolves around predicting whether a shot was successfully made during an NBA match. The predictive models showcased here are trained on a processed NBA Shot Logs dataset from the 2014-2015 season.
 
