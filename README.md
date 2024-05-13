@@ -8,7 +8,7 @@ Dataset: NBA Shot Logs, Season 14-15: The core of this analysis lies in the data
 Models: A diverse array of models have been employed to tackle the shot classification challenge: Logistic Regression, Support Vector Machine (SVM), Tabular Transformer, k-Nearest Neighbors (kNN) Classifier, Stochastic Gradient Descent (SGD) Classifier, Fully Connected Neural Networks (FCNN), XGBoost, Voting Classifier, AdaBoost, LightGBM, Random Forest, Naive Bayes.
 
 ## Project Structure
-src/: Explore the training scripts in this directory, specifically ```train_[model]_[dataset]_[task].py```, to check the model training process. Build the train and test datasets with ```make_dataset.py```.
+src/: Explore the model training scripts, specifically ```train_[model]_[dataset]_[task].py``` under each algorithm group directory. Build the train and test datasets with ```make_dataset.py```.
 
 notebooks/: Gain deeper insights into model performance through the ```model_evaluation.ipynb``` notebook. Check the data exploration and data preprocessing steps in the ```data_preprocess.ipynb``` notebook.
 
