@@ -1,7 +1,7 @@
 env
 
-data/processed/*
-!data/processed/.gitkeep
+model-development/data/processed/*
+!model-development/data/processed/.gitkeep
 
-models/*
-!models/.gitkeep
+model-development/models/*
+!model-development/models/.gitkeep
