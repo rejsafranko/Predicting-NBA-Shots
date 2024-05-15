@@ -7,17 +7,14 @@ from joblib import dump, load
 
 
 def parse_args():
-    parser = ArgumentParser()
-    parser.add_argument("filename")
-    parser.add_argument("test_size", type=float)
-    return parser.parse_args()
+    pass
 
 
-def load_data(filename, test_size):
+"""def load_data(filename, test_size):
     df = pd.read_csv(filename, index_col=0)
     labels = df["SHOT_RESULT"]
 
-    # Swap columns - last 3 columns are categorical and labels.
+    Swap columns - last 3 columns are categorical and labels.
     swap = [
         "LOCATION",
         "FINAL_MARGIN",
@@ -35,16 +32,16 @@ def load_data(filename, test_size):
     ]
     df = df.reindex(columns=swap)
 
-    # Create dataset split.
+    Create dataset split.
     dataset = dict()
     train, test = train_test_split(df, test_size=test_size, random_state=11)
 
-    # Normalize features.
+    Normalize features.
     minmax_scaler = MinMaxScaler()
     train[:-3] = minmax_scaler.fit_transform(train[:-3].values)
     test[:-3] = minmax_scaler.transform(test[:-3].values)
 
-    # Prepare dataset dictionaries.
+    Prepare dataset dictionaries.
     dataset["train"] = {
         "features": train.loc[:, train.columns != "SHOT_RESULT"],
         "labels": train["SHOT_RESULT"],
@@ -55,10 +52,13 @@ def load_data(filename, test_size):
     }
 
     return dataset
-
+"""
 
 def main(args):
-    dataset = load_data(args.filename, args.test_size)
+    print("Classifier still in development.")
+    exit(0)
+
+    dataset = load_data(args.train_split, args.test_split)
 
     # Prepare estimators.
     logreg = load("./models/logreg.joblib")
@@ -76,10 +76,6 @@ def main(args):
     # Save the models.
     dump(model_soft, "./models/votingclf_soft.joblib")
     dump(model_hard, "./models/votingclf_hard.joblib")
-
-    # Save test data.
-    dump(dataset["test"], "./data/test data/votingclf_test_data.joblib")
-
 
 if __name__ == "__main__":
     args = parse_args()
