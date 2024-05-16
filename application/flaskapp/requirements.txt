@@ -2,3 +2,4 @@ flask
 SQLAlchemy
 scikit-learn
 boto3
+python-dotenv

@@ -17,15 +17,17 @@ services:
     depends_on:
       - postgres
     environment:
-      - LOAD_EX=n
-      - EXECUTOR=Local
-      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg://airflow:airflow@postgres/airflow
+      EXECUTOR: Local
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://developer:1234@postgres/nba_data
     volumes:
       - airflow-logs:/opt/airflow/logs
     ports:
       - "8080:8080"
-    command: webserver
-  
+    command: >
+      bash -c "airflow db init && airflow users create --username developer --password 1234 --firstname Airflow --lastname User --role Admin --email developer@example.com && airflow webserver"
+    env_file:
+      - airflow.env
+
   flaskapp:
     build:
       context: ./flaskapp
@@ -34,8 +36,9 @@ services:
       - "5000:5000"
     depends_on:
       - postgres
-  
+    env_file:
+      - flask.env
+
 volumes:
   postgres-db-volume:
   airflow-logs:
-  minio-data-volume:

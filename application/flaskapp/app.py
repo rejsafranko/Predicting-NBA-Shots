@@ -1,11 +1,19 @@
+import os
+import botocore.client
 from flask import Flask, request, jsonify, Response
 from sklearn.base import BaseEstimator
 import joblib
 import boto3
+import botocore
 from io import BytesIO
 from typing import Any, Dict
+from dotenv import load_dotenv
 
 app = Flask(__name__)
+
+load_dotenv()
+AWS_ACCESS_KEY = os.getenv("ACCESS_KEY")
+AWS_SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 def load_model_from_s3(bucket_name: str, object_name: str) -> BaseEstimator:
@@ -17,7 +25,9 @@ def load_model_from_s3(bucket_name: str, object_name: str) -> BaseEstimator:
     :return: Loaded model.
     """
     # Create a new S3 client using default credentials and configuration.
-    s3 = boto3.client("s3")
+    s3: botocore.client.BaseClient = boto3.client(
+        "s3", aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY
+    )
     response = s3.get_object(Bucket=bucket_name, Key=object_name)
     model_stream = BytesIO(response["Body"].read())
     model = joblib.load(model_stream)

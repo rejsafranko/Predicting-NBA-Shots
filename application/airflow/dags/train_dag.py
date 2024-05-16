@@ -1,10 +1,14 @@
+import os
 from airflow import DAG
 from airflow.operators.python import PythonOperator, BranchPythonOperator
-from datetime import datetime, timedelta
+from datetime import timedelta
 from sqlalchemy import create_engine
+from dotenv import load_dotenv
 
-DB_ENGINE = create_engine("db-connection")
+load_dotenv()
+DB_HOST = os.getenv("DB_HOST")
 
+DB_ENGINE = create_engine(DB_HOST)
 
 def check_new_data_count() -> int:
     with DB_ENGINE.connect() as connection:
