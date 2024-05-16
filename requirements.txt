@@ -10,5 +10,7 @@ xgboost
 lightgbm
 flask
 apache-airflow==2.9.1
+boto3
+SQLAlchemy
 
 
