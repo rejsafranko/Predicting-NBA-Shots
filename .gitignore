@@ -5,3 +5,5 @@ model-development/data/processed/*
 
 model-development/models/*
 !model-development/models/.gitkeep
+
+application/flaskapp/.env

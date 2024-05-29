@@ -50,7 +50,7 @@ def predict() -> Response:
         if not isinstance(features, list):
             raise ValueError("Features must be a list.")
 
-        # Model expect a single array of features.
+        # Model expects a single array of features.
         prediction = MODEL.predict([data["features"]])
         return jsonify({"prediction": list(prediction)})
 

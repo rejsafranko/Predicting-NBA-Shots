@@ -35,6 +35,15 @@ services:
     depends_on:
       - postgres
 
+  seed:
+    image: python:3.11
+    depends_on:
+      - postgres
+    volumes:
+      - ./seed:/seed
+    command: >
+      bash -c "pip install sqlalchemy pandas python-dotenv && python /database/seed.py"
+
 volumes:
   postgres-db-volume:
   airflow-logs:
