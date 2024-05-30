@@ -24,10 +24,10 @@ This project aims to predict whether an NBA shot will be made or missed using th
 
 - **model-development**: This directory follows the cookiecutter data science template and is used for data exploration, analysis, cleaning, training machine learning models, and evaluating them offline.
   
-- **application**: This directory contains the MLOps infrastructure as a Docker Compose consisting of three services:
+- **application**: This directory contains the MLOps infrastructure as a Docker Compose consisting of three Docker services:
   - **Flask Server**: A server for making predictions based on the trained model.
   - **PostgreSQL Database**: A database for storing data.
-  - **Airflow**: A workflow management service. Airflow runs daily to check for at least 100 new inputs, retrains the model if the condition is met, stores the updated model in an S3 bucket, and updates the prediction model.
+  - **Apache Airflow**: A workflow management service. Airflow runs daily to check for at least 100 new inputs, retrains the model if the condition is met, stores the updated model in an S3 bucket, and updates the prediction model.
 
 ## Application
 
