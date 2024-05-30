@@ -51,8 +51,8 @@ This project aims to predict whether an NBA shot will be made or missed using th
 
 ### Amazon Web Services S3 Bucket
 
--- **Purpose**: Stores the up to date version of the model.
--- **Functionality**: Used by the Flask server to load the latest version of the model for prediction.
+- **Purpose**: Stores the up to date version of the model.
+- **Functionality**: Used by the Flask server to load the latest version of the model for prediction.
 
 ## License
 
