@@ -11,11 +11,11 @@ Welcome to the NBA Shot Prediction System project, a machine learning engineerin
 
 ## Project Overview
 
-This project aims to predict whether an NBA shot will be made or missed using the NBA shot logs dataset. The project is divided into two main parts: Model Development and Application.
+This project aims to predict whether an NBA shot will be made or missed using the NBA shot logs dataset. The project is divided into two main directories: ```model-development``` and ```application```.
 
-- **Model Development**: This directory follows the cookiecutter data science template and is used for data exploration, analysis, cleaning, training machine learning models, and evaluating them offline.
+- **model-development**: This directory follows the cookiecutter data science template and is used for data exploration, analysis, cleaning, training machine learning models, and evaluating them offline.
   
-- **Application**: This directory is set up locally using Docker Compose and consists of three services:
+- **application**: This directory contains the MLOps infrastructure as a Docker Compose consisting of three services:
   - **Flask Server**: A server for making predictions based on the trained model.
   - **PostgreSQL Database**: A database for storing data.
   - **Airflow**: A workflow management service. Airflow runs daily to check for at least 100 new inputs, retrains the model if the condition is met, stores the updated model in an S3 bucket, and updates the prediction model.
@@ -30,7 +30,7 @@ This project aims to predict whether an NBA shot will be made or missed using th
 
 ### PostgreSQL Database
 
-- **Purpose**: Stores prediction data and features.
+- **Purpose**: Stores data features and labels.
 - **Port**: 5432
 - **Initial Setup**: Database is seeded with initial data from a CSV file.
 
@@ -38,4 +38,4 @@ This project aims to predict whether an NBA shot will be made or missed using th
 
 - **Purpose**: Manages the workflow for model retraining.
 - **Port**: 8080
-- **Functionality**: Checks daily if there are at least 100 new inputs. If so, it retrains the model, uploads it to S3, and updates the model used by the Flask server.
+- **Functionality**: Checks daily if there are at least 100 new inputs. If so, it retrains the model and uploads it to S3 to be used by the Flask server predict endpoint.
