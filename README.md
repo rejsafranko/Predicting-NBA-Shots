@@ -6,7 +6,8 @@
 - [Introduction](#introduction)
 - [Project Overview](#project-overview)
 - [Project Structure](#project-structure)
-- [Models Used](#models-used)
+- [Application](#application)
+- [Model-development](#model-development)
 - [How to Use](#how-to-use)
 - [License](#license)
 
@@ -28,7 +29,7 @@ This project aims to predict whether an NBA shot will be made or missed using th
   - **PostgreSQL Database**: A database for storing data.
   - **Airflow**: A workflow management service. Airflow runs daily to check for at least 100 new inputs, retrains the model if the condition is met, stores the updated model in an S3 bucket, and updates the prediction model.
 
-## Services
+## Application
 
 ### Flask Server
 
