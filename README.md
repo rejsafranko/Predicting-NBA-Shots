@@ -60,6 +60,11 @@ This project aims to predict whether an NBA shot will be made or missed using th
 
 ### Model Evaluation
 
+## How To Use
+```bash
+Write lines here.
+```
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
