@@ -49,6 +49,11 @@ This project aims to predict whether an NBA shot will be made or missed using th
 - **Port**: 8080
 - **Functionality**: Checks daily if there are at least 100 new inputs. If so, it retrains the model and uploads it to S3 to be used by the Flask server predict endpoint.
 
+### Amazon Web Services S3 Bucket
+
+-- **Purpose**: Stores the up to date version of the model.
+-- **Functionality**: Used by the Flask server to load the latest version of the model for prediction.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
