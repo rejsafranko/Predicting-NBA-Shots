@@ -2,6 +2,14 @@
 
 [STILL IN DEVELOPMENT] ❗❗❗
 
+## Table of Contents
+- [Introduction](#introduction)
+- [Project Overview](#project-overview)
+- [Project Structure](#project-structure)
+- [Models Used](#models-used)
+- [How to Use](#how-to-use)
+- [License](#license)
+
 ## Introduction
 
 Welcome to the NBA Shot Prediction System project, a machine learning engineering project which focuses on 3 key aspects:
