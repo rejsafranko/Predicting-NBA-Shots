@@ -31,19 +31,19 @@ This project aims to predict whether an NBA shot will be made or missed using th
 
 ## Application
 
-### Flask Server
+### Flask Server Docker Service
 
 - **Purpose**: Handles incoming prediction requests and returns the prediction results.
 - **Port**: 5000
 - **Endpoint**: `/predict` (Accepts POST requests with features for prediction)
 
-### PostgreSQL Database
+### PostgreSQL Database Docker Service
 
 - **Purpose**: Stores data features and labels.
 - **Port**: 5432
 - **Initial Setup**: Database is seeded with initial data from a CSV file.
 
-### Apache Airflow
+### Apache Airflow Docker Service
 
 - **Purpose**: Manages the workflow for model retraining.
 - **Port**: 8080
@@ -53,6 +53,12 @@ This project aims to predict whether an NBA shot will be made or missed using th
 
 - **Purpose**: Stores the up to date version of the model.
 - **Functionality**: Used by the Flask server to load the latest version of the model for prediction.
+
+## Model Development
+
+### Models Used
+
+### Model Evaluation
 
 ## License
 
