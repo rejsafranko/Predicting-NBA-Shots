@@ -43,7 +43,7 @@ This project aims to predict whether an NBA shot will be made or missed using th
 - **Port**: 5432
 - **Initial Setup**: Database is seeded with initial data from a CSV file.
 
-### Airflow
+### Apache Airflow
 
 - **Purpose**: Manages the workflow for model retraining.
 - **Port**: 8080
