@@ -2,6 +2,13 @@
 
 [STILL IN DEVELOPMENT] ❗❗❗
 
+## Introduction
+
+Welcome to the NBA Shot Prediction System project, a machine learning engineering project which focuses on 3 key aspects:
+- **Model development**
+- **Model deployment**
+- **MLOps infrastructure**
+
 ## Project Overview
 
 This project aims to predict whether an NBA shot will be made or missed using the NBA shot logs dataset. The project is divided into two main parts: Model Development and Application.
